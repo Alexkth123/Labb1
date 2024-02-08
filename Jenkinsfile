@@ -1,6 +1,6 @@
 pipeline {
     agent {
-        label "any"
+        label "test_pipeline_java"
     }
     tools {
         jdk 'Java17'
