@@ -52,7 +52,8 @@ public class PyramidPuzzle {
      * @return the number of disks
      */
     public int getNumDisks() {
-        return 0;
+
+        return numofDisks;
     }
 
     /**
@@ -76,12 +77,12 @@ public class PyramidPuzzle {
         int destTopsize = getTopSize(dest);
         int diskSize = getTopSize(src);
 
-      if(destTopsize==0)
+      if(destTopsize==0&&diskSize!=0)
       {
 
           return true;
       }
-         else if(diskSize < destTopsize)
+      else if(diskSize < destTopsize)
          {
              return true;
          }
@@ -135,6 +136,7 @@ public class PyramidPuzzle {
 
        // if(state[Peg.RIGHT.getIndex()][getTopSize(Peg.RIGHT)]==1 && getTopSize(Peg.RIGHT)==(numofDisks-1))
         if(getTopSize(Peg.RIGHT)==1 && getTopIndex(Peg.RIGHT)==(numofDisks-1))
+
         {
             return true;
         }else
