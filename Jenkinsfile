@@ -1,6 +1,6 @@
 pipeline{
     agent{
-        label ""
+        label "any"
     }
     tools{
         jdk 'Java17'
@@ -17,11 +17,6 @@ pipeline{
                 git branch 'main' credentialsId: 'github', url: 'https://github.com/Alexkth123/Labb1'
             }
         }
-        stage("Clean up workspace"){
-                    steps{
-                        cleanWs()
-                    }
-                }
 
     }
 
