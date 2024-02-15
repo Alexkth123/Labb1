@@ -7,7 +7,7 @@ pipeline {
         maven 'Maven3'
     }
     environment {
-        APP_NAME = "Labb1"
+        APP_NAME = "labb1"
         RELEASE = "1.0.0"
         // Removed DOCKER_USER and DOCKER_PASS from environment variables as they will be injected by withCredentials
         IMAGE_NAME = "${DOCKER_USER}/${APP_NAME}" // This will be set inside withCredentials
