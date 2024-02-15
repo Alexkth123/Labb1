@@ -46,13 +46,12 @@ pipeline {
         stage("Build & Push Docker Image") {
             steps {
                 script {
-                    // Correctly use Jenkins credentials to login to Docker Hub
-                    withCredentials([usernamePassword(credentialsId: 'dockerhub', passwordVariable: 'DOCKER_PASS', usernameVariable: 'DOCKER_USER')]) {
-                        sh "docker login -u ${DOCKER_USER} --password-stdin <<< ${DOCKER_PASS}"
+                   // Utilizing withDockerRegistry for Docker Hub login using Jenkins-stored credentials
+                    withDockerRegistry(credentialsId: 'dockerhub', url: 'https://index.docker.io/v1/') {
                         // Build the Docker image
-                        def dockerImage = docker.build("${DOCKER_USER}/${APP_NAME}:${IMAGE_TAG}")
+                        def dockerImage = docker.build("${env.IMAGE_NAME}:${env.IMAGE_TAG}")
                         // Push the Docker image
-                        dockerImage.push("${IMAGE_TAG}")
+                        dockerImage.push("${env.IMAGE_TAG}")
                         dockerImage.push("latest")
                     }
                 }
