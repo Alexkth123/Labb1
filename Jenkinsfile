@@ -6,13 +6,12 @@ pipeline {
         jdk 'Java17'
         maven 'Maven3'
     }
-    environment{
+    environment {
         APP_NAME = "Labb1"
         RELEASE = "1.0.0"
-        DOCKER_USER = "avarling"
-        DOCKER_PASS = "dockerhub"
-        IMAGE_NAME = "${DOCKER_USER}"+"/"+"${APP_NAME}"
-        IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
+        // Removed DOCKER_USER and DOCKER_PASS from environment variables as they will be injected by withCredentials
+        IMAGE_NAME = "${DOCKER_USER}/${APP_NAME}" // This will be set inside withCredentials
+        IMAGE_TAG = "${RELEASE}-${env.BUILD_NUMBER}"
     }
     stages {
         stage("Clean up workspace") {
@@ -44,22 +43,20 @@ pipeline {
             }
         }
 
-        stage("Build & Push Docker image ") {
+        stage("Build & Push Docker Image") {
             steps {
-               script{
-                docker.withRegistry('',DOCKER_PASS) {
-                    docker_image = docker.Build "${IMAGE_NAME}"
+                script {
+                    // Correctly use Jenkins credentials to login to Docker Hub
+                    withCredentials([usernamePassword(credentialsId: 'dockerhub', passwordVariable: 'DOCKER_PASS', usernameVariable: 'DOCKER_USER')]) {
+                        sh "docker login -u ${DOCKER_USER} --password-stdin <<< ${DOCKER_PASS}"
+                        // Build the Docker image
+                        def dockerImage = docker.build("${DOCKER_USER}/${APP_NAME}:${IMAGE_TAG}")
+                        // Push the Docker image
+                        dockerImage.push("${IMAGE_TAG}")
+                        dockerImage.push("latest")
+                    }
                 }
-
-                docker.withRegistry('',DOCKER_PASS) {
-                    docker_image.Push("${IMAGE_TAG}") 
-                    docker_image.Push("latest") 
-                }
-
-
-               }
             }
         }
-
     }
 }
