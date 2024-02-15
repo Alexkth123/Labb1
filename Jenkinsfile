@@ -46,12 +46,18 @@ pipeline {
         stage("Build & Push Docker Image") {
             steps {
                 script {
-                   // Utilizing withDockerRegistry for Docker Hub login using Jenkins-stored credentials
+                   // Use Jenkins credentials for Docker login
                     withDockerRegistry(credentialsId: 'dockerhub', url: 'https://index.docker.io/v1/') {
+                        // Define IMAGE_NAME and IMAGE_TAG here to ensure they use correct, up-to-date values
+                        def IMAGE_NAME = "${env.DOCKER_USER}/${env.APP_NAME}"
+                        def IMAGE_TAG = "${env.RELEASE}-${env.BUILD_NUMBER}"
+                        
+                        echo "Building and pushing Docker image as ${IMAGE_NAME}:${IMAGE_TAG}"
+
                         // Build the Docker image
-                        def dockerImage = docker.build("${env.IMAGE_NAME}:${env.IMAGE_TAG}")
+                        def dockerImage = docker.build("${IMAGE_NAME}:${IMAGE_TAG}")
                         // Push the Docker image
-                        dockerImage.push("${env.IMAGE_TAG}")
+                        dockerImage.push("${IMAGE_TAG}")
                         dockerImage.push("latest")
                     }
                 }
