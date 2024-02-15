@@ -6,12 +6,12 @@ pipeline {
         jdk 'Java17'
         maven 'Maven3'
     }
-    environment {
+    environment{
         APP_NAME = "Labb1"
         RELEASE = "1.0.0"
-        // Assuming DOCKER_CREDENTIALS_ID is the ID of your Docker credentials stored in Jenkins
-        DOCKER_CREDENTIALS_ID = "dockerhub"
-        IMAGE_NAME = "${DOCKER_USER}/${APP_NAME}"
+        DOCKER_USER = "avarling"
+        DOCKER_PASS = "dockerhub"
+        IMAGE_NAME = "${DOCKER_USER}"+"/"+"${APP_NAME}"
         IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
     }
     stages {
@@ -44,25 +44,22 @@ pipeline {
             }
         }
 
-        stage("Build & Push Docker Image") {
+        stage("Build & Push Docker image ") {
             steps {
-                script {
-                    // Login to Docker Hub securely
-                    withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS_ID, passwordVariable: 'DOCKER_PASS', usernameVariable: 'DOCKER_USER')]) {
-                        sh "echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin https://index.docker.io/v1/"
-                    }
-                    // Build the Docker image
-                    def dockerImage = docker.build("$IMAGE_NAME:$IMAGE_TAG")
-                    // Push the Docker image
-                    dockerImage.push("$IMAGE_TAG")
-                    dockerImage.push("latest")
+               script{
+                docker.withRegistry('',DOCKER_PASS) {
+                    docker_image = docker.Build "${IMAGE_NAME}"
                 }
+
+                docker.withRegistry('',DOCKER_PASS) {
+                    docker_image.Push("${IMAGE_TAG}") 
+                    docker_image.Push("latest") 
+                }
+
+
+               }
             }
         }
-    }
-    post {
-        always {
-            cleanWs()
-        }
+
     }
 }
